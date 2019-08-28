@@ -1,0 +1,40 @@
+﻿@page "/registro"
+<h3>Registro</h3>
+@inject HttpClient http
+@inject IUriHelper uriHelper
+@inject ILoginService loginService
+
+@using BlazorCRUD.Client.Auth
+
+<EditForm Model="userInfo" OnValidSubmit="CrearUsuario">
+    <DataAnnotationsValidator />
+
+    <div class="form-field">
+        <label>Email:</label>
+        <div>
+            <InputText Class="form-control" @bind-Value="@userInfo.Email" />
+            <ValidationMessage For="@(() => userInfo.Email)" />
+        </div>
+    </div>
+    <div class="form-field">
+        <label>Password:</label>
+        <div>
+            <InputPassword Class="form-control" @bind-Value="@userInfo.Password" />
+            <ValidationMessage For="@(() => userInfo.Password)" />
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Registrar</button>
+
+</EditForm>
+
+@code {
+    private UserInfo userInfo = new UserInfo();
+
+    private async Task CrearUsuario()
+    {
+        var result = await http.PostJsonAsync<UserToken>("api/cuentas/crear", userInfo);
+        await loginService.Login(result.Token);
+        uriHelper.NavigateTo("");
+    }
+}

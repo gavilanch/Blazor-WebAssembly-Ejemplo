@@ -1,0 +1,20 @@
+﻿@page "/crear-persona"
+@inject HttpClient Http
+@inject IUriHelper UriHelper
+@attribute [Authorize]
+@using Microsoft.AspNetCore.Authorization;
+
+
+<h3>Crear Persona</h3>
+
+<FormularioPersonas TextoBoton="Crear Persona" OnValidSubmit="@CrearPersona" Persona="@persona" />
+
+@code {
+    Persona persona = new Persona();
+
+    async Task CrearPersona()
+    {
+        await Http.PostJsonAsync("personas", persona);
+        UriHelper.NavigateTo("indice-personas");
+    }
+}
