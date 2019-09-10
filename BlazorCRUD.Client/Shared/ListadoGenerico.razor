@@ -1,0 +1,46 @@
+﻿@typeparam TElemento
+
+@if (Listado == null)
+{
+    if (PlantillaNula == null)
+    {
+        <text>Cargando...</text>
+    }
+    else
+    {
+        @PlantillaNula
+    }
+}
+else if (Listado.Count == 0)
+{
+    if (PlantillaVacia == null)
+    {
+        <text>No hay registros en la base de datos</text>
+    }
+    else
+    {
+        @PlantillaVacia
+    }
+}
+else
+{
+    if (PlantillaConElementos != null)
+    {
+        @PlantillaConElementos
+    }
+    else
+    {
+        foreach (var elemento in Listado)
+        {
+            @PlantillaConElementosTipo(elemento)
+        }
+    }
+}
+
+@code {
+    [Parameter] public List<TElemento> Listado { get; set; }
+    [Parameter] public RenderFragment PlantillaVacia { get; set; }
+    [Parameter] public RenderFragment PlantillaNula { get; set; }
+    [Parameter] public RenderFragment PlantillaConElementos { get; set; }
+    [Parameter] public RenderFragment<TElemento> PlantillaConElementosTipo { get; set; }
+}

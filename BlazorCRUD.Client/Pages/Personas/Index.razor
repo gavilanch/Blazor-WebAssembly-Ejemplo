@@ -8,54 +8,53 @@
 
 <AuthorizeView>
     <Authorized>
-        <div>
+        <div class="form-group">
             <a class="btn btn-success" href="crear-persona">Nueva Persona</a>
         </div>
     </Authorized>
 </AuthorizeView>
-@if (personas == null)
-{
-    <text>Cargando...</text>
-}
-else if (personas.Length == 0)
-{
-    <text>No hay personas en la base de datos</text>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th></th>
-                <th>Id</th>
-                <th>Nombre</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var persona in personas)
-            {
-                <tr>
-                    <td>
-                        <AuthorizeView>
-                            <Authorized>
-                                <a class="btn btn-success" href="editar-persona/@persona.Id">Editar</a>
-                                <button class="btn btn-danger" @onclick="@(() => BorrarPersona(persona.Id))">Borrar</button>
-                            </Authorized>
-                        </AuthorizeView>
-                    </td>
-                    <td>@persona.Id</td>
-                    <td>@persona.Nombre</td>
-                </tr>
-            }
-        </tbody>
-    </table>
 
+<ListadoGenerico Listado="personas">
+    <PlantillaConElementos>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Id</th>
+                    <th>Nombre</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var persona in personas)
+                {
+                    <tr>
+                        <td>
+                            <AuthorizeView>
+                                <Authorized>
+                                    <a class="btn btn-success" href="editar-persona/@persona.Id">Editar</a>
+                                    <button class="btn btn-danger" @onclick="@(() => BorrarPersona(persona.Id))">Borrar</button>
+                                </Authorized>
+                            </AuthorizeView>
+                        </td>
+                        <td>@persona.Id</td>
+                        <td>@persona.Nombre</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+    </PlantillaConElementos>
+</ListadoGenerico>
+
+@if (personas?.Count > 0)
+{
     <button @onclick="ExportarCSV">Exportar a CSV</button>
     <button @onclick="ExportarExcel">Exportar a Excel</button>
 }
 
+
 @code {
-    Persona[] personas { get; set; }
+    List<Persona> personas { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -64,7 +63,7 @@ else
 
     async Task CargarPersonas()
     {
-        personas = await Http.GetJsonAsync<Persona[]>("personas");
+        personas = await Http.GetJsonAsync<List<Persona>>("personas");
     }
 
     async Task BorrarPersona(int idPersona)
