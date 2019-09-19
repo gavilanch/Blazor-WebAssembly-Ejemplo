@@ -3,6 +3,7 @@
 @inject IJSRuntime JS
 @using System.IO
 @using CsvHelper
+@using System.Text.Json
 
 <h3>Personas</h3>
 
@@ -13,6 +14,9 @@
         </div>
     </Authorized>
 </AuthorizeView>
+
+<Paginacion PaginasTotales="paginasTotales" PaginaActual="paginaActual" 
+            PaginaSeleccionada="PaginaSeleccionada"></Paginacion>
 
 <ListadoGenerico Listado="personas">
     <PlantillaConElementos>
@@ -56,14 +60,34 @@
 @code {
     List<Persona> personas { get; set; }
 
+    private int paginaActual = 1;
+    private int paginasTotales;
+
     protected override async Task OnInitializedAsync()
     {
         await CargarPersonas();
     }
 
-    async Task CargarPersonas()
+    private async Task PaginaSeleccionada(int pagina)
     {
-        personas = await Http.GetJsonAsync<List<Persona>>("personas");
+        paginaActual = pagina;
+        await CargarPersonas(pagina);
+    }
+
+    async Task CargarPersonas(int pagina = 1, int cantidadRegistrosAMostrar = 10)
+    {
+        var httpResponse = await Http.GetAsync($"personas?pagina={pagina}&CantidadAMostrar={cantidadRegistrosAMostrar}");
+        if (httpResponse.IsSuccessStatusCode)
+        {
+            paginasTotales = int.Parse(httpResponse.Headers.GetValues("totalPaginas").FirstOrDefault());
+            var responseString = await httpResponse.Content.ReadAsStringAsync();
+            personas = JsonSerializer.Deserialize<List<Persona>>(responseString,
+                new JsonSerializerOptions() { PropertyNameCaseInsensitive = true });
+        }
+        else
+        {
+            Console.WriteLine("error");
+        }
     }
 
     async Task BorrarPersona(int idPersona)

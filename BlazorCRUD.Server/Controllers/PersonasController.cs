@@ -1,4 +1,5 @@
-﻿using BlazorCRUD.Shared.Models;
+﻿using BlazorCRUD.Server.Helpers;
+using BlazorCRUD.Shared.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -24,9 +25,11 @@ namespace BlazorCRUD.Server.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public async Task<ActionResult<List<Persona>>> Get()
+        public async Task<ActionResult<List<Persona>>> Get([FromQuery] Paginacion paginacion)
         {
-            return await context.Personas.ToListAsync();
+            var queryable = context.Personas.AsQueryable();
+            await HttpContext.InsertarParametrosPaginacionEnRespuesta(queryable, paginacion.CantidadAMostrar);
+            return await queryable.Paginar(paginacion).ToListAsync();
         }
 
         [AllowAnonymous]

@@ -15,13 +15,13 @@ namespace BlazorCRUD.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CuentasController : ControllerBase
+    public class AccountsController : ControllerBase
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly IConfiguration _configuration;
 
-        public CuentasController(
+        public AccountsController(
             UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager,
             IConfiguration configuration)

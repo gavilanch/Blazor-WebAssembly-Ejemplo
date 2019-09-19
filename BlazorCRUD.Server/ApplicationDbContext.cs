@@ -16,6 +16,19 @@ namespace BlazorCRUD.Server
 
         }
 
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            var personas = new List<Persona>();
+            for (int i = 5; i < 1000; i++)
+            {
+                personas.Add(new Persona() { Id = i, Nombre = $"Persona {i}" });    
+            }
+
+            builder.Entity<Persona>().HasData(personas);
+
+            base.OnModelCreating(builder);
+        }
+
         public DbSet<Persona> Personas { get; set; }
     }
 }
