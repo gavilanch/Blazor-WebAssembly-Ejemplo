@@ -25,9 +25,14 @@ namespace BlazorCRUD.Server.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public async Task<ActionResult<List<Persona>>> Get([FromQuery] Paginacion paginacion)
+        public async Task<ActionResult<List<Persona>>> Get([FromQuery] Paginacion paginacion, 
+            [FromQuery] string nombre)
         {
             var queryable = context.Personas.AsQueryable();
+            if (!string.IsNullOrEmpty(nombre))
+            {
+                queryable = queryable.Where(x => x.Nombre.Contains(nombre));
+            }
             await HttpContext.InsertarParametrosPaginacionEnRespuesta(queryable, paginacion.CantidadAMostrar);
             return await queryable.Paginar(paginacion).ToListAsync();
         }

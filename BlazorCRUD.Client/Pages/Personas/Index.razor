@@ -15,7 +15,18 @@
     </Authorized>
 </AuthorizeView>
 
-<Paginacion PaginasTotales="paginasTotales" PaginaActual="paginaActual" 
+<div class="form-inline">
+    <label class="sr-only" for="nombre-filtro">Filtrar</label>
+    <input type="text" class="form-control mb-2 mr-sm-2"
+          @bind="nombrePersonaFiltro" placeholder="Filtrar por Nombre" />
+    <button type="button" class="btn btn-primary mr-sm-2 mb-2"
+            @onclick="Filtrar">Filtrar</button>
+    <button type="button" class="btn btn-danger mb-2"
+            @onclick="Limpiar">Limpiar</button>
+
+</div>
+
+<Paginacion PaginasTotales="paginasTotales" PaginaActual="paginaActual"  Radio="2"
             PaginaSeleccionada="PaginaSeleccionada"></Paginacion>
 
 <ListadoGenerico Listado="personas">
@@ -62,6 +73,7 @@
 
     private int paginaActual = 1;
     private int paginasTotales;
+    private string nombrePersonaFiltro = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -74,9 +86,22 @@
         await CargarPersonas(pagina);
     }
 
+    private async Task Filtrar()
+    {
+        paginaActual = 1;
+        await CargarPersonas();
+    }
+
+    private async Task Limpiar()
+    {
+        nombrePersonaFiltro = string.Empty;
+        paginaActual = 1;
+        await CargarPersonas();
+    }
+
     async Task CargarPersonas(int pagina = 1, int cantidadRegistrosAMostrar = 10)
     {
-        var httpResponse = await Http.GetAsync($"personas?pagina={pagina}&CantidadAMostrar={cantidadRegistrosAMostrar}");
+        var httpResponse = await Http.GetAsync($"personas?pagina={pagina}&CantidadAMostrar={cantidadRegistrosAMostrar}&nombre={nombrePersonaFiltro}");
         if (httpResponse.IsSuccessStatusCode)
         {
             paginasTotales = int.Parse(httpResponse.Headers.GetValues("totalPaginas").FirstOrDefault());

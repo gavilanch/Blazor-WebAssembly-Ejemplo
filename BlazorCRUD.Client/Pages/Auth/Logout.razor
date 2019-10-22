@@ -1,6 +1,6 @@
 ﻿@page "/logout"
 @inject ILoginService loginService
-@inject NavigationManager uriHelper
+@inject NavigationManager navigationManager
 @using BlazorCRUD.Client.Auth
 
 <text>Deslogueando...</text>
@@ -9,6 +9,6 @@
     protected async override Task OnInitializedAsync()
     {
         await loginService.Logout();
-        uriHelper.NavigateTo("");
+        navigationManager.NavigateTo("");
     }
 }
