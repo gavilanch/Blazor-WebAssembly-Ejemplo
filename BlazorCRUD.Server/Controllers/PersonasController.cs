@@ -41,7 +41,7 @@ namespace BlazorCRUD.Server.Controllers
         [HttpGet("{id}", Name = "obtenerPersona")]
         public async Task<ActionResult<Persona>> Get(int id)
         {
-            return await context.Personas.FirstOrDefaultAsync(x => x.Id == id);
+            return await context.Personas.Include(x => x.Estado).FirstOrDefaultAsync(x => x.Id == id);
         }
 
         [HttpPost]

@@ -1,18 +1,101 @@
-﻿<EditForm Model="@Persona" OnValidSubmit="@OnValidSubmit">
-    <div class="form-field">
-        <label>Nombre:</label>
-        <div>
-            <InputText @bind-Value="@Persona.Nombre" />
-            <ValidationMessage For="@(() => Persona.Nombre)" />
-        </div>
-    </div>
+﻿@inject HttpClient http
 
-    <button type="submit" class="btn btn-success">@TextoBoton</button>
-    <DataAnnotationsValidator />
-</EditForm>
+    <EditForm Model="@Persona" OnValidSubmit="@OnValidSubmit">
+        <div class="form-group">
+            <label>Nombre:</label>
+            <div>
+                <InputText class="form-control" @bind-Value="@Persona.Nombre" />
+                <ValidationMessage For="@(() => Persona.Nombre)" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>País:</label>
+            <div>
+                <InputSelectNumber class="form-control"
+                                   ValueChanged="@((int value) => ValorPaisCambiado(value))"
+                                   ValueExpression="@(() => paisId)"
+                                   Value="paisId">
+                    <option value="0">--Seleccione un país--</option>
+                    @foreach (var item in Paises)
+                    {
+                        @if (item.Id == paisId)
+                        {
+                            <option selected value="@item.Id">@item.Nombre</option>
+                        }
+                        else
+                        {
+                            <option value="@item.Id">@item.Nombre</option>
+                        }
+                    }
+                </InputSelectNumber>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Estado:</label>
+            <div>
+                <InputSelectNumber class="form-control"
+                                   @bind-Value="Persona.EstadoId"
+                                   >
+                    <option value="0">--Seleccione un estado--</option>
+                    @foreach (var item in Estados)
+                    {
+                        @if (item.Id == Persona.EstadoId)
+                        {
+                            <option selected value="@item.Id">@item.Nombre</option>
+                        }
+                        else
+                        {
+                            <option value="@item.Id">@item.Nombre</option>
+                        }
+                    }
+                </InputSelectNumber>
+                <ValidationMessage For="@(() => Persona.EstadoId)" />
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-success">@TextoBoton</button>
+        <DataAnnotationsValidator />
+    </EditForm>
 
 @code {
     [Parameter] public Persona Persona { get; set; } = new Persona();
     [Parameter] public String TextoBoton { get; set; } = "Salvar cambios";
     [Parameter] public EventCallback OnValidSubmit { get; set; }
+    List<Estado> Estados = new List<Estado>();
+    List<Pais> Paises = new List<Pais>();
+    private int paisId = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Persona.Estado != null)
+        {
+            paisId = Persona.Estado.PaisId;
+            await CargarEstados(Persona.Estado.PaisId);
+        }
+
+        Paises = await http.GetJsonAsync<List<Pais>>("api/paises");
+    }
+
+    private async Task ValorPaisCambiado(int value)
+    {
+        Persona.EstadoId = 0;
+        paisId = value;
+        await InvokeAsync(StateHasChanged);
+
+        if (value == 0)
+        {
+            Estados.Clear();
+        }
+        else
+        {
+            await CargarEstados(value);
+        }
+    }
+
+    private async Task CargarEstados(int paisId)
+    {
+        Estados = await http.GetJsonAsync<List<Estado>>($"api/paises/{paisId}/estados");
+    }
 }

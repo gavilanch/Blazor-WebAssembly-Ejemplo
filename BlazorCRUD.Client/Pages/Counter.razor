@@ -5,29 +5,56 @@
 
 <p>Current count: @currentCount</p>
 
-<input type="number" @bind="currentCount" />
+<input type="text" @bind="currentCount" @onkeypress="ManejarKeyPress" @onkeypress:preventDefault />
 
-@*<AuthorizeView>
-    <Authorized>
-        <button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
-    </Authorized>
-    <NotAuthorized>
-        Usted no está autorizado
-    </NotAuthorized>
-    <Authorizing>
-        Autorizando
-    </Authorizing>
-</AuthorizeView>*@
 
 <button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
 
+@*<AuthorizeView>
+        <Authorized>
+            <button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+        </Authorized>
+        <NotAuthorized>
+            Usted no está autorizado
+        </NotAuthorized>
+        <Authorizing>
+            Autorizando
+        </Authorizing>
+    </AuthorizeView>*@
+
+<h2>Stop propagation</h2>
+
+<input @bind="stopPropagation" type="checkbox" />
+<div @onclick="OnClickParentDiv">
+    Parent div
+    <div @onclick="OnClickChildDiv" @onclick:stopPropagation="stopPropagation">
+        Child div
+    </div>
+</div>
 
 @code {
+
+    bool stopPropagation;
+
+    void OnClickParentDiv() => Console.WriteLine("Div externo padre");
+    void OnClickChildDiv() => Console.WriteLine("Div interno");
 
     [CascadingParameter]
     private Task<AuthenticationState> authenticationState { get; set; }
 
     int currentCount = 10;
+
+    private void ManejarKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "+")
+        {
+            currentCount++;
+        }
+        else if (e.Key == "-")
+        {
+            currentCount--;
+        }
+    }
 
     async Task IncrementCount()
     {
